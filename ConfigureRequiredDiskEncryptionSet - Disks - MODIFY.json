@@ -1,0 +1,66 @@
+{
+  "properties": {
+    "mode": "All",
+    "parameters": {
+        "diskEncryptionSetId": {
+            "type": "String",
+            "metadata": {
+                "displayName": "Disk Encryption Set ID",
+                "description": "Resource Id of the Disk Encryption to which disks will be added.",
+                "strongType": "Microsoft.Compute/diskEncryptionSets"
+            }
+        },
+        "diskEncryptionSetType": {
+            "type": "String",
+            "metadata": {
+                "displayName": "Disk Encryption Type",
+                "description": "Type of Disk Encryption Set to apply."
+            },
+            "defaultValue":"EncryptionAtRestWithCustomerKey",
+            "allowedValues": [
+              "EncryptionAtRestWithCustomerKey",
+              "EncryptionAtRestWithPlatformAndCustomerKeys",
+              "EncryptionAtRestWithPlatformKey"
+            ]
+        }
+    },
+    "policyRule": {
+      "if": {
+          "allOf": [
+            {
+              "field": "type",
+              "equals": "Microsoft.Compute/disks"
+            },
+            {
+              "field": "Microsoft.Compute/disks/managedBy",
+              "exists": "False"
+            },
+            {
+              "field": "Microsoft.Compute/disks/encryption.diskEncryptionSetId",
+              "notEquals": "[parameters('diskEncryptionSetId')]"
+            }
+          ]
+      },
+      "then": {
+        "effect": "modify",
+        "details": {
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "operations": [
+            {
+                "operation": "addOrReplace",
+                "field": "Microsoft.Compute/disks/encryption.diskEncryptionSetId",
+                "value": "[parameters('diskEncryptionSetId')]"
+            },
+            {
+                "operation": "addOrReplace",
+                "field": "Microsoft.Compute/disks/encryption.type",
+                "value": "[parameters('diskEncryptionSetType')]"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
