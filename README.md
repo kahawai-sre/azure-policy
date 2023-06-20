@@ -1,6 +1,8 @@
 # azure-policy
 
 ## Modifiable aliases & properties
+
+get-azpolicyalias | Select-object -expandproperty Aliases | Where-Object {$_.DefaultMetaData -ne $Null} | where-object {$_.DefaultMetaData.Attributes -eq "Modifiable"}
 Modifiable:
 - Microsoft.Compute/virtualMachines/securityProfile.encryptionAtHost
 - Microsoft.Compute/virtualMachineScaleSets/virtualmachines/securityProfile.encryptionAtHost
